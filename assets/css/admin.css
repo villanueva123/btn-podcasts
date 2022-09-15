@@ -1,0 +1,39 @@
+td.cover_art.column-cover_art img{
+    max-width:160px;
+}
+div#group-image img {
+    max-width: 200px;
+    object-fit: cover;
+    height: 200px;
+}
+div#group-image figure {
+    padding: 0px;
+    margin: 0;
+}
+button#upload-cover-img,
+button#remove-cover-img {
+    color: #0071a1;
+    border-color: #0071a1;
+    background: #f3f5f6;
+    vertical-align: top;
+    display: inline-block;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 2.15384615;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 10px;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+#group-menu-order{
+    width: 100%;
+}
+#group-menu-order input[type="number"] {
+    width: 95%;
+}
