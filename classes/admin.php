@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
  * @since      1.0.0
  * @package    btn-podcasts
  * @subpackage btn-podcasts/classes
- * @author     Curtis Krauter <curtis@businesstechninjas.com>
+ * @author     Augustus Villanueva <augustus@businesstechninjas.com>
  */
 final class btn_podcasts_admin {
 
