@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
  * @since      1.0.0
  * @package    btn-podcasts
  * @subpackage btn-podcasts/classes
- * @author     Curtis Krauter <curtis@businesstechninjas.com>
+ * @author     Augustus Villanueva <Augustus@businesstechninjas.com>
  * @NOTE : Tested up to Memberium Version 2.150.11
  */
 final class btn_podcasts_memberium {
