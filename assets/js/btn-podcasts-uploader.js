@@ -14,15 +14,17 @@ var featuredAudio = {},
 		frame: '',
 		settings: btnPodcastsData || {},
 		init: function() {
-			featuredAudio.container =  $doc.getElementById(prefix+"featured-audio");
-			featuredAudio.initFrame();
-            $uploadAudio.onclick = function (e){
-                featuredAudio.openAudioFrame();
-            };
-            $removeAudio.onclick = function (e){
-                featuredAudio.removeAudio();
-            };
-            featuredAudio.initAudioPreview();
+      if($uploadAudio!== null && $uploadAudio !== ''){
+        featuredAudio.container =  $doc.getElementById(prefix+"featured-audio");
+  			featuredAudio.initFrame();
+              $uploadAudio.onclick = function (e){
+                  featuredAudio.openAudioFrame();
+              };
+              $removeAudio.onclick = function (e){
+                  featuredAudio.removeAudio();
+              };
+              featuredAudio.initAudioPreview();
+      }
 		},
 
 		/**

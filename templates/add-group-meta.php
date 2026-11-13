@@ -13,7 +13,7 @@
                     <div id="group-image" class="group-img-wrap">
                         <label for="cover-art-id"><?php _e('Group Menu Order', 'btn-podcasts'); ?></label>
 
-                        <input type = "number" name="btn-podcasts-group-order" >
+                        <input type = "number" name="btn-podcasts-group-order" value = "100">
                     </div>
                 </td>
             </tr>
@@ -24,7 +24,6 @@
     <table id="group-cover-art" >
         <tbody>
             <tr>
-
                 <td class="group-image">
                     <div id="group-image" class="group-img-wrap">
                         <label for="cover-art-id"><?php _e('Group Cover Art', 'btn-podcasts'); ?></label>
@@ -33,6 +32,34 @@
                         <button id="upload-cover-img" class="upload-cover-img"><?php _e('Add or Change Image', 'btn-podcasts'); ?></button>
                         <button id="remove-cover-img" class="remove-cover-img" style="display:none">x</button>
                         <input id="cover-art-id" class="cover-art" type="hidden" name="cover_art_id" value=""/>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="form-field">
+    <table id="group-menu-order" >
+        <tbody>
+            <tr>
+                <td class="group-image">
+                    <div id="group-image" class="group-img-wrap">
+                        <label for="cover-art-id"><?php _e('Show Lock Icon When Restricted', 'btn-podcasts'); ?></label>
+                        <input type = "checkbox" name="btn-podcasts-group-unlock" value = "1">
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="form-field">
+    <table id="group-menu-order" >
+        <tbody>
+            <tr>
+                <td class="group-image">
+                    <div id="group-image" class="group-img-wrap">
+                        <label for="cover-art-id"><?php _e('Show Lock Text when Restricted', 'btn-podcasts'); ?></label>
+                        <input type = "text" name="btn-podcasts-group-unlocked-text" value = "">
                     </div>
                 </td>
             </tr>

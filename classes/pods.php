@@ -19,23 +19,23 @@ final class btn_podcasts_pods {
 		// Group Taxonomy
         $group_args = [
             'labels'            	=>  [
-                'name'          =>  __( 'Groups', 'btn-podcasts' ),
-                'singular_name' =>  __( 'Group', 'btn-podcasts' ),
-				'add_new' 				=> _x( 'Add New', 'Group Pod', 'btn-podcasts' ),
-    			'add_new_item' 			=> __( 'Add New Group Pod', 'btn-podcasts' ),
-    			'edit_item' 			=> __( 'Edit Group Pod', 'btn-podcasts' ),
-    			'new_item' 				=> __( 'New Group Pod', 'btn-podcasts' ),
-    			'view_item' 			=> __( 'View Group Pod', 'btn-podcasts' ),
-    			'search_items' 			=> __( 'Search Group Pods', 'btn-podcasts' ),
-    			'not_found' 			=> __( 'Nothing found', 'btn-podcasts' ),
-    			'not_found_in_trash'	=> __( 'Nothing found in Trash', 'btn-podcasts' ),
-            ],
+						'name'          =>  __( 'Groups', 'btn-podcasts' ),
+						'singular_name' =>  __( 'Group', 'btn-podcasts' ),
+						'add_new' 				=> _x( 'Add New', 'Group Pod', 'btn-podcasts' ),
+						'add_new_item' 			=> __( 'Add New Group Pod', 'btn-podcasts' ),
+						'edit_item' 			=> __( 'Edit Group Pod', 'btn-podcasts' ),
+						'new_item' 				=> __( 'New Group Pod', 'btn-podcasts' ),
+						'view_item' 			=> __( 'View Group Pod', 'btn-podcasts' ),
+						'search_items' 			=> __( 'Search Group Pods', 'btn-podcasts' ),
+						'not_found' 			=> __( 'Nothing found', 'btn-podcasts' ),
+						'not_found_in_trash'	=> __( 'Nothing found in Trash', 'btn-podcasts' ),
+						],
             'public'            	=> false,
             'rewrite'           	=> false,
-            'hierarchical'      	=> false,
-			'show_ui'				=> true,
-			'show_admin_column' 	=> true,
-			'meta_box_cb'			=> ['btn_podcasts_admin', 'group_selector'],
+            'hierarchical'      	=> true,
+						'show_ui'				=> true,
+						'show_admin_column' 	=> true,
+						'meta_box_cb'			=> ['btn_podcasts_admin', 'group_selector'],
         ];
         register_taxonomy( self::TAX_SLUG, self::POST_SLUG, $group_args );
 
@@ -63,9 +63,9 @@ final class btn_podcasts_pods {
 			'hierarchical' 			=> false,
 			'menu_position' 		=> null,
 			'menu_icon'				=> 'dashicons-format-audio',
-			'supports' 				=> ['title', 'excerpt', 'page-attributes'],
+			'supports' 				=> ['title', 'excerpt', 'page-attributes', 'thumbnail'],
 			'exclude_from_search' 	=> true,
-			'register_meta_box_cb'	=> [__CLASS__,'meta_boxes'],
+			'register_meta_box_cb'	=> ['btn_podcasts_pods','meta_boxes'],
 		];
 		register_post_type( self::POST_SLUG, $pod_args );
 
@@ -74,7 +74,7 @@ final class btn_podcasts_pods {
 	/**
 	 * Meta Boxes
 	 */
-	function meta_boxes( $post ){
+	static function meta_boxes( $post ){
 		$slug = self::POST_SLUG;
 
 		if( $post->post_type === $slug && is_admin() ){
@@ -83,18 +83,10 @@ final class btn_podcasts_pods {
 				__('Pod Audio', $slug),
 				['btn_podcasts_admin', 'show_podcasts_metabox'],
 				$slug,
-				'side',
+				'normal',
 				'high'
 			);
 
-			add_meta_box(
-				$slug . 'option-link-metabox',
-				__('Option Link', $slug),
-				['btn_podcasts_admin', 'show_podcasts_option_link_metabox'],
-				$slug,
-				'side',
-				'high'
-			);
 		}
 	}
 
@@ -168,22 +160,102 @@ final class btn_podcasts_pods {
 		return self::META_POD_AUDIO;
 	}
 
-	function get_option_link_meta_key(){
-		return self::META_OPTION_LINK;
-	}
-
 	function get_user_meta_key(){
 		return self::USER_META;
 	}
 
+	function get_unlocked_meta_key(){
+		return self::UNLOCKED;
+	}
+	function get_unlocked_text_meta_key(){
+		return self::UNLOCKED_TEXT;
+	}
+
+	function pod_listen($category){
+		$return = '';
+		global $wpdb;
+		$table = "{$wpdb->prefix}podcast";
+		$user_id = get_current_user_id();
+		if($category === 0){
+			$sql = "SELECT COUNT(*) max_streak FROM ( SELECT x.* , CASE WHEN @prev = listened - INTERVAL 1 DAY THEN @i:=@i ELSE @i:=@i+1 END i , @prev:=listened
+         	FROM ( SELECT DISTINCT listened FROM  {$table}  where user_id = %s) x JOIN  ( SELECT @prev:=null,@i:=0 ) vars ORDER BY listened)
+			a GROUP BY i ORDER BY max_streak DESC LIMIT 1;
+			";
+			$podcast = $wpdb->get_row( $wpdb->prepare($sql, $user_id));
+			$number = (!empty($podcast))? $podcast->max_streak : 0 ;
+			$days = ($number > 1 )? "Days" : "Day";
+			$return =  $number . " {$days}";
+		}
+		else if($category === 1){
+			//$return = $this->get_date_range("1","week");
+		}
+		else if($category === 2){
+			//$return = $this->get_date_range("1","month");
+		}
+		else if($category === 3){
+			//$return =$this->get_date_range("3","month");
+		}
+		else if($category === 4){
+			$return =$this->get_date_range("6","month");
+		}
+		else if($category === 5){
+			//$return =$this->get_date_range("1","year");
+		}
+		else if($category === 6){
+			$previous = date("Y-m-d", strtotime("-1 week +1 day"));
+			$today = date('Y-m-d');
+			$sql = "SELECT MAX(CAST(streak AS UNSIGNED)) AS streak FROM (SELECT user_id, D,DATEDIFF('%s', D),@streak := IF( DATEDIFF('%s', D) - @days_diff > 1, @streak,IF(@days_diff := DATEDIFF('%s', D), @streak+1, @streak+1))  AS streak FROM (SELECT user_id, listened AS D FROM {$table} GROUP BY user_id, listened) AS a CROSS JOIN (SELECT @streak := 0, @days_diff := -1) AS vars WHERE user_id = '%s' AND D <= '%s' ORDER BY D DESC) AS t";
+			$podcast = $wpdb->get_row( $wpdb->prepare($sql,$today,$today,$today,$user_id,$today));
+			$number = (!empty($podcast->streak))? $podcast->streak : 0 ;
+			if(empty($podcast->streak)){
+				$today = date("Y-m-d", strtotime("yesterday"));
+				$sql = "SELECT MAX(CAST(streak AS UNSIGNED)) AS streak FROM (SELECT user_id, D,DATEDIFF('%s', D),@streak := IF( DATEDIFF('%s', D) - @days_diff > 1, @streak,IF(@days_diff := DATEDIFF('%s', D), @streak+1, @streak+1))  AS streak FROM (SELECT user_id, listened AS D FROM {$table} GROUP BY user_id, listened) AS a CROSS JOIN (SELECT @streak := 0, @days_diff := -1) AS vars WHERE user_id = '%s' AND D <= '%s' ORDER BY D DESC) AS t";
+
+			$podcast = $wpdb->get_row( $wpdb->prepare($sql,$today,$today,$today,$user_id,$today));
+			$number = (!empty($podcast->streak))? $podcast->streak : 0 ;
+			}
+
+			$days = ($number > 1 )? "Days" : "Day";
+			$return =  $number . " {$days}";
+		}
+		return $return;
+	}
+	function get_date_range($number, $range){
+		global $wpdb;
+		$user_id = get_current_user_id();
+		$table = "{$wpdb->prefix}podcast";
+		$previous = date("Y-m-d", strtotime("-{$number} {$range} +1 day"));
+		//var_dump($previous);
+		$today = date('Y-m-d');
+		$sql = "SELECT * FROM {$table} WHERE listened BETWEEN '%s' AND '%s' AND user_id = %s GROUP BY listened ORDER BY listened DESC";
+		$podcast = $wpdb->get_results($wpdb->prepare($sql,$previous,$today, $user_id));
+		$number = (!empty($podcast))? count($podcast) : 0 ;
+		$pods = ($number > 1 )? "Days" : "Days";
+
+		//consecutive days
+		$sql = "SELECT COUNT(*) max_streak FROM ( SELECT x.* , CASE WHEN @prev = listened - INTERVAL 1 DAY THEN @i:=@i ELSE @i:=@i+1 END i , @prev:=listened
+				FROM ( SELECT DISTINCT listened FROM  {$table}  where (listened BETWEEN '%s' AND '%s' AND user_id = %s) ) x JOIN  ( SELECT @prev:=null,@i:=0 ) vars ORDER BY listened)
+		a GROUP BY i ORDER BY max_streak DESC LIMIT 1;
+		";
+		$podcast = $wpdb->get_row( $wpdb->prepare($sql, $previous, $today, $user_id));
+		$html = '';
+		$html .= "Number of {$pods} : <b>{$number}</b>";
+		$number = (!empty($podcast))? $podcast->max_streak : 0 ;
+		$html .= "<br>Consecutive of Days : <b>{$number}</b>";
+		return $html;
+	}
+
+
+
 	function __construct(){}
 
-    const POST_SLUG = 'pods';
-    const TAX_SLUG = 'pod-groups';
+	const POST_SLUG = 'pods';
+	const TAX_SLUG = 'pod-groups';
 	const ART_KEY = 'btn/podcasts/art';
 	const GROUP_MENU_ORDER = 'btn/podcasts/order';
 	const META_POD_AUDIO = 'btn/podcasts/pod-audio';
 	const USER_META = 'btn/podcasts/playlists';
-	const META_OPTION_LINK = 'btn/podcasts/option-link';
+	const UNLOCKED = 'btn/podcasts/unlocked/';
+	const UNLOCKED_TEXT = 'btn/podcasts/unlocked/text';
 
 }

@@ -3,7 +3,7 @@
 Plugin Name: BTN Podcasts
 Plugin URI: https://businesstechninjas.com/
 Description: Podcasts w/ Memberium Access Functionality
-Version: 1.0.0
+Version: 1.0.3.12
 Author: Business Tech Ninjas
 Author URI: https://businesstechninjas.com/
 License: Copyright (c) Business Tech Ninjas
@@ -16,7 +16,7 @@ if (! defined('ABSPATH')) {
 	die();
 }
 
-define('BTN_PODCASTS_VERSION', '1.0.8');
+define('BTN_PODCASTS_VERSION', '2.2.34');
 define('BTN_PODCASTS_PLUGIN', __FILE__);
 define('BTN_PODCASTS_DIR', __DIR__ . '/');
 define('BTN_PODCASTS_CLASS_DIR', BTN_PODCASTS_DIR . 'classes/');
@@ -32,6 +32,13 @@ include_once BTN_PODCASTS_CLASS_DIR . 'autoloader.php';
 add_action('plugins_loaded',function(){
 	btn_podcasts()->init();
 }, 1 );
+
+//Plugin Activatication
+btn_podcasts()->register_activation_hooks();
+
+if ( !function_exists( 'wp_password_change_notification' ) ) {
+    function wp_password_change_notification() {}
+}
 
 // Gets the instance of the `btn_podcasts` class
 function btn_podcasts(){

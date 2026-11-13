@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
  * @since      1.0.0
  * @package    btn-podcasts
  * @subpackage btn-podcasts/classes
- * @author     Augustus Villanueva <augustus@businesstechninjas.com>
+ * @author     Curtis Krauter <curtis@businesstechninjas.com>
  */
 final class btn_podcasts_frontend {
 
@@ -19,7 +19,6 @@ final class btn_podcasts_frontend {
 
 		add_action('wp_enqueue_scripts',[$this,'enqueue']);
 		add_action('wp_footer', [$this,'frontend_print_scripts']);
-		add_action('wp_head', [$this,'test']);
 
 		// Shortcodes
 		$this->register_shortcodes();
@@ -32,6 +31,10 @@ final class btn_podcasts_frontend {
 		$prefix = "btn_podcasts_";
 		$this->shortcode_map = [
 			"{$prefix}player"	=> "{$prefix}shortcodes",
+			"{$prefix}streak_show"	=> "{$prefix}shortcodes",
+			"{$prefix}streak_show_check"	=> "{$prefix}shortcodes",
+			"{$prefix}achievement_show"	=> "{$prefix}shortcodes",
+			"{$prefix}achievement_show_check"	=> "{$prefix}shortcodes",
 		];
 		foreach ($this->shortcode_map as $tag => $class) {
 			add_shortcode($tag, [$this, "shortcode_mapping"]);
@@ -67,13 +70,13 @@ final class btn_podcasts_frontend {
 		$url = BTN_PODCASTS_ASSESTS_URL;
 		$v = BTN_PODCASTS_VERSION;
 		wp_register_style('btn-podcasts-frontend-css', "{$url}css/frontend.css", [], $v, 'all');
-		wp_enqueue_style('btn-podcasts-frontend-css');
 		$dep = [];
 		wp_register_script('btn-podcasts-frontend-js', "{$url}js/frontend.js", $dep, $v, 'all' );
 	}
 
 	// Footer Scripts
 	function frontend_print_scripts(){
+		
 		$to_json = $this->get_json();
 	    // Nothing Doing
 	    if ( empty($to_json) ){
@@ -83,9 +86,22 @@ final class btn_podcasts_frontend {
 	    else {
 			$to_json['user_id'] = get_current_user_id();
             $to_json['ajax_url'] = admin_url( 'admin-ajax.php' );
+			wp_enqueue_style('btn-podcasts-frontend-css');
 			wp_localize_script( 'btn-podcasts-frontend-js', 'btn_podcasts_data', $to_json );
 			wp_enqueue_script( 'amplitudejs' );
 			wp_enqueue_script( 'btn-podcasts-frontend-js' );
+            if ( is_user_logged_in() ) {
+                wp_enqueue_script(
+                    'btn-podcasts-qualified-listens',
+                    BTN_PODCASTS_ASSESTS_URL . 'js/qualified-listens.js',
+                    array( 'btn-podcasts-frontend-js' ), BTN_PODCASTS_VERSION, true
+                );
+                wp_localize_script( 'btn-podcasts-qualified-listens', 'btnClinicalListen', array(
+                    'loggedIn' => true,
+                    'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                    'nonce' => wp_create_nonce( 'btn_podcasts_qualified_listen' ),
+                ) );
+            }
 		}
 	}
 

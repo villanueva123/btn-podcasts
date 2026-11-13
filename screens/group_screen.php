@@ -7,15 +7,15 @@ if (! defined('ABSPATH')) {
 class btn_podcasts_groups_screen {
 
     function init(){
-		$group_slug = btn_podcasts()->pods()->get_taxonomy_slug();
-		add_action( "{$group_slug}_pre_add_form", [$this, 'enqueue'] );
+				$group_slug = btn_podcasts()->pods()->get_taxonomy_slug();
+				add_action( "{$group_slug}_pre_add_form", [$this, 'enqueue'] );
         add_action( "{$group_slug}_pre_edit_form", [$this, 'enqueue'] );
         add_action( "{$group_slug}_add_form_fields", [$this, 'add_taxonomy_meta'] );
         add_action( "{$group_slug}_edit_form_fields", [$this, 'edit_taxonomy_meta'], 10, 2 );
 
-		// Image Column
-		add_filter( "manage_edit-{$group_slug}_columns", [$this, 'set_columns'] );
-		add_filter( "manage_{$group_slug}_custom_column", [$this, 'column_content'], 10, 3 );
+				// Image Column
+				add_filter( "manage_edit-{$group_slug}_columns", [$this, 'set_columns'] );
+				add_filter( "manage_{$group_slug}_custom_column", [$this, 'column_content'], 10, 3 );
     }
 
 	function enqueue(){
@@ -29,17 +29,20 @@ class btn_podcasts_groups_screen {
 	}
 
     function add_taxonomy_meta( $taxonomy ){
-		wp_nonce_field( 'group_cover_art_nonce', 'group_cover_art_nonce' );
-		require_once BTN_PODCASTS_TMPL_DIR . 'add-group-meta.php';
+			wp_nonce_field( 'group_cover_art_nonce', 'group_cover_art_nonce' );
+			require_once BTN_PODCASTS_TMPL_DIR . 'add-group-meta.php';
     }
 
 	function edit_taxonomy_meta( $term, $taxonomy ){
 		$term_id = $term->term_id;
 		$cover_art = btn_podcasts()->pods()->get_cover_art( $term_id );
-		$btn_podcasts_group_order = get_term_meta($term_id, btn_podcasts()->pods()->get_group_order_meta_key(), true);
+		$group_order  = get_term_meta($term_id, btn_podcasts()->pods()->get_group_order_meta_key(), true);
+		$btn_podcasts_group_order = ($group_order > '') ? $group_order : 100;
 		$group_img_url = ( $cover_art && !empty($cover_art['src']) ) ? $cover_art['src'] : '';
 		$group_img = ( $group_img_url > '' ) ? "<img src=\"{$group_img_url}\" />" : '';
 		$group_img_id = ( $cover_art && !empty($cover_art['id']) ) ? $cover_art['id'] : '';
+		$unlocked  = get_term_meta($term_id, btn_podcasts()->pods()->get_unlocked_meta_key(), true);
+		$unlocked_text  = get_term_meta($term_id, btn_podcasts()->pods()->get_unlocked_text_meta_key(), true);
 		$remove_display = ( $group_img_url > '' ) ? '' : 'style="display:none"';
 		wp_nonce_field( 'group_cover_art_nonce', 'group_cover_art_nonce' );
 		require_once BTN_PODCASTS_TMPL_DIR . 'edit-group-meta.php';
@@ -76,6 +79,28 @@ class btn_podcasts_groups_screen {
 		}
 		else if( $old_order_meta_key != $new_order_meta_key ){
 			update_term_meta( $term_id, $group_menu_order_meta_key, $new_order_meta_key );
+		}
+
+		//Group Unlocked
+		$group_unlocked_meta_key = btn_podcasts()->pods()->get_unlocked_meta_key();
+		$old_unlocked_meta_key = get_term_meta($term_id, $group_unlocked_meta_key, true);
+		$new_unlocked_meta_key = ( !empty($_POST['btn-podcasts-group-unlock']) ) ? $_POST['btn-podcasts-group-unlock'] : false;
+		if( $old_unlocked_meta_key && ! $new_unlocked_meta_key ){
+		    delete_term_meta( $term_id, $group_unlocked_meta_key );
+		}
+		else if( $old_unlocked_meta_key != $new_unlocked_meta_key ){
+		    update_term_meta( $term_id, $group_unlocked_meta_key, $new_unlocked_meta_key );
+		}
+
+		//Group Unlocked Text
+		$group_unlocked_text_meta_key = btn_podcasts()->pods()->get_unlocked_text_meta_key();
+		$old_unlocked_text_meta_key = get_term_meta($term_id, $group_unlocked_text_meta_key, true);
+		$new_unlocked_text_meta_key = ( !empty($_POST['btn-podcasts-group-unlocked-text']) ) ? $_POST['btn-podcasts-group-unlocked-text'] : false;
+		if( $old_unlocked_text_meta_key && ! $new_unlocked_text_meta_key ){
+		    delete_term_meta( $term_id, $group_unlocked_text_meta_key );
+		}
+		else if( $old_unlocked_text_meta_key != $new_unlocked_text_meta_key ){
+		    update_term_meta( $term_id, $group_unlocked_text_meta_key, $new_unlocked_text_meta_key );
 		}
 
 

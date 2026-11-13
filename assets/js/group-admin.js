@@ -1,7 +1,6 @@
 (function( $ ) {
     'use strict';
 
-
     $(document).ready(function() {
         var btnPodcasbtnPodcastsGroupDatasData = btnPodcastsGroupData;
         console.log(btnPodcastsGroupData);

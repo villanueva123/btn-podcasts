@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
  * @since      1.0.0
  * @package    btn-podcasts
  * @subpackage btn-podcasts/classes
- * @author     Augustus Villanueva <Augustus@businesstechninjas.com>
+ * @author     Curtis Krauter <curtis@businesstechninjas.com>
  * @NOTE : Tested up to Memberium Version 2.150.11
  */
 final class btn_podcasts_memberium {
@@ -48,10 +48,12 @@ final class btn_podcasts_memberium {
 			else{
 				$has_access = memb_hasAnyTags($tags);
 			}
-        }
+    }
 
 		return $has_access;
 	}
+
+
 
 	function has_all_tags( $tags ){
 
@@ -246,6 +248,39 @@ final class btn_podcasts_memberium {
 		}
 		return $return;
 	}
+
+
+	/**
+	 * User Has Membeship
+	 *
+ 	 * @param int  $term_id   Pods Group ID
+	 * @param boolean $group_selector  Check if Group Pods is content protected or not
+	 */
+	function user_has_membership($term_id, $taxonomy, $group_selector = false){
+			$tags = false;
+			$membership = false;
+			$return = true;
+			if( function_exists('memb_hasTermAccess') ){
+					$return = memb_hasTermAccess($term_id, $taxonomy);
+			}
+			if($group_selector){
+				$term_meta = get_term_meta($term_id,'_wpal/taxonomy/access');
+				if(!empty($term_meta)){
+					foreach($term_meta[0] as $key => $data){
+							if($key === 'tags1'){
+								$tags = $data;
+							}
+							if($key === 'memberships'){
+								$membership = $data;
+							}
+					}
+				}
+				$return = (!empty($membership) || !empty($tags))? true : false;
+			}
+			return $return;
+	}
+
+
 
 	// CRM Link URL
 	function contact_url( $contact_id = '%s' ){

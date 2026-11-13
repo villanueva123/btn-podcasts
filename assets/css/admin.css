@@ -37,3 +37,10 @@ button#remove-cover-img {
 #group-menu-order input[type="number"] {
     width: 95%;
 }
+div#wpfooter {
+    position: relative;
+}
+.btn-streak {
+    padding: 10px;
+    background: #fff;
+}

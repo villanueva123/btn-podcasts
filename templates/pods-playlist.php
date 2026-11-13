@@ -1,4 +1,5 @@
 <?php
+$html = '';
 $html .="<div class=\"podcasts-playlist-container\">";
     $html .="<ul class=\"podcasts-tab\" id=\"podcasts-tab\">";
         $html .="<li class=\"podcasts-list\">";
@@ -14,7 +15,10 @@ $html .="<div class=\"podcasts-playlist-container\">";
                 include btn_podcasts()->template_part_path('podcasts/library.php');
       $html .="</div>";
        $html .="<div class=\"tab-pane\" id=\"btn-podcasts-playlist\">";
+              $html .="<div class=\"btn-podcasts-no-playlist\">{$no_playlist_notice}</div>";
+      $html .="<div class=\"btn-podcats-player-wrapper\">";
                 include btn_podcasts()->template_part_path('podcasts/playlist.php');
+      $html .="</div>";
       $html .="</div>";
     $html .="</div>";
     $html .="</div>";

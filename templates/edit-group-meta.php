@@ -41,3 +41,35 @@
         </tbody>
     </table>
 </div>
+<div class="form-field">
+    <table id="group-menu-order"  class="form-table">
+        <tbody>
+            <tr>
+                <th>
+                    <label for="cover-art-id"><?php _e('Show Lock Icon when Restricted', 'btn-podcasts'); ?></label>
+                </th>
+                <td class="group-image">
+                    <div id="group-image" class="group-img-wrap">
+                        <input type = "checkbox" name="btn-podcasts-group-unlock" value = "1" <?php echo checked( 1, $unlocked, false ); ?>>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="form-field">
+    <table id="group-menu-order"  class="form-table">
+        <tbody>
+            <tr>
+                <th>
+                    <label for="cover-art-id"><?php _e('Show Lock Text when Restricted', 'btn-podcasts'); ?></label>
+                </th>
+                <td class="group-image">
+                    <div id="group-image" class="group-img-wrap">
+                        <input type = "text" name="btn-podcasts-group-unlocked-text" style="max-width:580px" value = "<?php echo $unlocked_text; ?>">
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

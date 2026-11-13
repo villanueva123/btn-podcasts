@@ -5,7 +5,7 @@
             include btn_podcasts()->template_part_path('podcasts/playlist-item.php');
     $html .='</div>';
 
-        $html .="<div id=\"black-player-controls\">";
+        $html .="<div id=\"black-player-controls\" class=\"black-player-controls\">";
             $html .="<div class=\"black-player-controls-container\" id=\"btn-player-playlist\">";
              $html .="<div class=\"btn-playlist-img-cont\">";
                   $html .="<img data-amplitude-song-info=\"cover_art_url\"  class=\"playlist-album-art\"/>";
@@ -25,21 +25,14 @@
                   $html .="<span class=\"amplitude-duration-minutes\">03</span>:<span class=\"amplitude-duration-seconds\">00</span>";
                 $html .="</span>";
                 $html .="</div>";
-
-
               $html .="<div class=\"btn-playlist-container-control\">";
                 $html .="<div class=\"amplitude-repeat repeat-playlist\" data-tooltip = \"Repeat Playlist\" id=\"repeat-black-playlist\"></div>";
                 $html .="<div class=\"amplitude-prev\"  id=\"previous-black\"></div>";
                 $html .="<div class=\"amplitude-play-pause\"  id=\"play-pause-black\"></div>";
                 $html .="<div class=\"amplitude-next\"  id=\"next-black\"></div>";
                 $html .="<div class=\"amplitude-repeat-song\" data-tooltip = \"Repeat Song\" id=\"repeat-black\"></div>";
-
               $html .="</div>";
             $html .="</div>";
+            $html .="<div class=\"btn-podcasts-start-playlist\"><p>{$playlist_label_notice}</p><button class=\"btn-podcasts-start-playlist\">{$playlist_button_label}</button></div>";
         $html .="</div>";
-
-
-
-
-
 ?>

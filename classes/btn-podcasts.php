@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
  * @since      1.0.0
  * @package    btn-podcasts
  * @subpackage btn-podcasts/classes
- * @author     Augustus Villanueva <augustus@businesstechninjas.com>
+ * @author     Curtis Krauter <curtis@businesstechninjas.com>
  */
 final class btn_podcasts {
 
@@ -19,7 +19,7 @@ final class btn_podcasts {
 		$this->load_text_domain();
 
 		// Add Memberium Access Settings
-		add_filter('wpal/controlled/access/taxonomies', ['btn_podcasts_pods', 'taxonomy_access']);
+		add_filter('memberium/controlled/access/taxonomies', ['btn_podcasts_pods', 'taxonomy_access']);
 
 		// Init Hooks
 		add_action('init',[$this,'init_hooks']);
@@ -38,11 +38,14 @@ final class btn_podcasts {
 			$this->frontend()->add_wp_hooks();
 		}
 
+        // Qualified playback events and admin-only clinical reporting.
+        $this->clinical()->add_wp_hooks();
+
 		// AJAX Hooks
 		if ( wp_doing_ajax() ) {
-
-		}
 			$this->ajax()->add_wp_hooks();
+		}
+
     }
 
 	// Register Player Script for Pod Post Type Admin & Frontend Shortcodes
@@ -52,6 +55,14 @@ final class btn_podcasts {
 		 * @link Configuration 	https://521dimensions.com/open-source/amplitudejs/docs/configuration/
 		*/
 		$version = '5.2.0';
+		//$version = '5.3.2';
+  		$user_agent       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : ''; // get the user agent value - this should be cleaned to ensure no nefarious input gets executed
+		if (preg_match('/ipod/i',$user_agent)||preg_match('/iphone/i',$user_agent) || preg_match('/ipad/i',$user_agent)){
+			$versions = preg_replace("/(.*) OS ([0-9]*)_(.*)/","$2",$user_agent);
+			if($versions <= 12 || $versions >= 30 ){
+				$version = '5.3.2';
+			}
+		}
 		wp_register_script('amplitudejs', "https://cdn.jsdelivr.net/npm/amplitudejs@{$version}/dist/amplitude.js", [], $version);
 	}
 
@@ -72,6 +83,15 @@ final class btn_podcasts {
         }
         return $ajax;
     }
+    // NHS Clinical Trial 2026 data/reports
+    function clinical(){
+        static $clinical = null;
+        if ( is_null( $clinical ) ) {
+            $clinical = new btn_podcasts_clinical;
+        }
+        return $clinical;
+    }
+
 	// Get Admin Class
     function admin(){
 		static $admin = null;
@@ -167,6 +187,39 @@ final class btn_podcasts {
             error_log($error_log);
         }
     }
+
+	//Plugin Activation
+    function register_activation_hooks(){
+        register_activation_hook(BTN_PODCASTS_PLUGIN,  [$this, 'plugin_activated']);
+    }
+
+	public static function plugin_activated(){
+		self::create_database_tables();
+        btn_podcasts_clinical::create_table();
+	}
+	/**
+	 * Create DB Tables
+	*/
+	private static function create_database_tables() {
+ 		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+        // License
+        $table_name = $wpdb->prefix . 'podcast';
+       $sql = "CREATE TABLE {$table_name} ( \n" .
+            "id int(11) NOT NULL AUTO_INCREMENT, \n" .
+            "user_id varchar(32) NOT NULL, \n" .
+			"duration varchar(32) NOT NULL, \n" .
+			"podcast_id varchar(32) NOT NULL, \n" .
+            "listened date NOT NULL, \n" .
+            "PRIMARY KEY  (id), \n" .
+			 "KEY user_id (user_id), \n" .
+			 "KEY podcast_id (podcast_id), \n" .
+			 "KEY listened (listened) \n" .
+            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        dbDelta( $sql );
+	}
+
 
 
 
